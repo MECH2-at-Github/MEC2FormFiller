@@ -31,23 +31,12 @@
 			</div>
 		</div>
 		<p>Default download location is "This PC → Downloads"</p>
-		<p>Chrome will block downloads from the intranet portal because it is not "https" and so you must click "Keep" on each file to successfully download.</p>
-		<p>The list will only show one file when you click the download button. To show all files, click the download icon to hide the file list, then click it again.</p>
-		<img src="SaveInsecureDownload.png" width="500px" height="auto"></img>
 	</div>
 </body>
 
 <script type="text/javascript">	
 	const { PDFDocument } = PDFLib;
 	const fillFormInfo = JSON.parse(new URLSearchParams(decodeURI(window.location.search)).get('parm1'));
-	const workerInfoArray = {
-		x169978:{name: "Jonathan M", phone: "218-726-2170", location: "Duluth"},
-		x16950h:{name: "Dean K", phone: "218-726-2145", location: "Duluth"},
-		x169b18:{name: "Tonia V", phone: "218-726-2031", location: "Duluth"},
-		x169a69:{name: "AnnMarie H", phone: "218-471-7327", location: "Virginia"},
-		x169962:{name: "Jill L", phone: "218-471-7544", location: "Virginia"},
-	};
-	const workerInfo = workerInfoArray[fillFormInfo?.xNumber.toLowerCase()];
 	if (fillFormInfo.pdfType === "csForms") {
 		document.getElementById('fillPDFbuttonMin').style.display = "block"
 	} else if (fillFormInfo.pdfType === "BillingForm") {

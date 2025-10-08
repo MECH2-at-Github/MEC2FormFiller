@@ -56,9 +56,9 @@
 	todayDate.setText(new Date().toLocaleDateString(undefined, dateFormat));
 	caseName.setText(formInfo.caseName)
 	caseNumber.setText(formInfo.caseNumber)
-	providerName.setText('St. Louis County')
-	providerAddress.setText('320 W 2nd St 4th Floor')
-	providerCityStateZip.setText('Duluth, MN 55802')
+	providerName.setText(formInfo.billingName)
+	providerAddress.setText(formInfo.billingAddress)
+	providerCityStateZip.setText(formInfo.billingCSZ)
 	countyName.setText(formInfo.providerName)//actually provider
 	countyAddress.setText('PID: ' + formInfo.providerIdVal)//actually provider
 	//addressTwo.setText()
