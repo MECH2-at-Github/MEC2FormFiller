@@ -28,8 +28,8 @@ async function csReferral(formInfo) {
 	form.getTextField('caseNumber2').setText(formInfo.caseNumber);
 	form.getTextField('caseNumber3').setText(formInfo.caseNumber);
 	form.getTextField('caseNumber4').setText(formInfo.caseNumber);
-	workerName.setText(formInfo.workerName + " - CCAP");
-	workerPhone.setText(formInfo.workerPhone);
+	workerName.setText(formInfo.workerName ?? "" + " - CCAP");
+	workerPhone.setText(formInfo.workerPhone ?? "");
 	cpInfoFirst.setText(formInfo.cpInfo.first);
 	cpInfoLast.setText(formInfo.cpInfo.last);
 	ncpInfoFirst.setText(formInfo.ncpInfo?.first);
