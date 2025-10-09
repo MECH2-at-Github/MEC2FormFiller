@@ -1,6 +1,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
+	<!-- meta knowledge: readme.md -->
     <script type="text/javascript" src="./pdf-lib.min.js"></script>
     <script type="text/javascript" src="./download.js"></script>
     <!-- <script type="text/javascript" src="https://unpkg.com/pdf-lib"></script> -->
