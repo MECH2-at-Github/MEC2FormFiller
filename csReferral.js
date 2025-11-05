@@ -35,7 +35,7 @@ async function csReferral(formInfo) {
 	formInfo.childList.forEach((childName, i) => { childrenObj["child" + i].setText(childName) })
 
 		//Name the PDF
-	const pdfEndName = ["Referral to Support and Collections", formInfo.caseNumber, formInfo.cpInfo.last, (formInfo.ncpInfo?.last + " " ?? "") + "(required)" ].join(" - ") + ".pdf"
+	const pdfEndName = ["Referral to Support and Collections", formInfo.caseNumber, formInfo.cpInfo.last, (formInfo.ncpInfo?.last ? formInfo.ncpInfo?.last + " " : "") + "(required)" ].join(" - ") + ".pdf"
 
 		// Serialize the PDFDocument to bytes (a Uint8Array)
 	const pdfBytes = await pdfDoc.save()

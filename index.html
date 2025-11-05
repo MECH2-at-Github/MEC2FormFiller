@@ -13,8 +13,8 @@
 </head>
 
 <body>
-	<div id="container">
-		<p>Click the button to fill PDF form fields and download the resulting file to your computer. </p>
+	<div class="container">
+		<div>Click the button to fill PDF form fields and download the resulting file to your computer. </div>
 		<div id="buttonDiv">
 			<button class="fillButton" id="fillPDFbutton">Fill PDF</button>
 			<button class="fillButton" style="display: none" id="fillPDFbuttonMin">Fill PDF (2 pg Good Cause)</button>
@@ -31,14 +31,17 @@
 				<input id="copayAmount" type="number" style="width: 6ch; align-self: end; -webkit-appearance: none; -moz-appearance: textfield;"></input>
 			</div>
 		</div>
-		<p>Default download location is "This PC → Downloads"</p>
+		<div>Default download location is "This PC → Downloads"</div>
+	</div>
+	<div class="container">
+		<div id="dataOutput"></div>
 	</div>
 </body>
 
 <script type="text/javascript">	
 	const { PDFDocument } = PDFLib;
 	const fillFormInfo = JSON.parse(new URLSearchParams(decodeURI(window.location.search)).get('parm1'));
-	if (fillFormInfo.pdfType === "csForms") {
+	if (fillFormInfo.pdfType === "ChildSupportForms") {
 		document.getElementById('fillPDFbuttonMin').style.display = "block"
 	} else if (fillFormInfo.pdfType === "BillingForm") {
 		const weekInMs = 86400000 * 14
@@ -67,46 +70,68 @@
 			fillFormInfo.copayAmount = event.target.value
 		})
 	}
+	(function outputDataOnPage() {
+		let dataOutput = document.getElementById('dataOutput')
+		for (let data in fillFormInfo) {
+			let info = fillFormInfo[data]
+			if (typeof info === "object") { info = objToString(info) }
+			dataOutput.appendChild( createNewEle('div') )
+			.append( createNewEle('label', { textContent: data + ":" }), createNewEle('div', { textContent: info.toString() }) )
+		}
+	})();
+	<!-- function objectToString(obj) { return Object.entries(obj).map(e => e.join(": ")).join(", ") } -->
+	function objToString(obj) { return JSON.stringify(obj).replace(/["{}\[\]]/g, '').replace(/(:|,)(\S)/g, '$1 $2') }
+	
 	document.getElementById('fillPDFbutton').focus()
 
 	document.getElementById('buttonDiv').addEventListener('click', function(event) {
 		if (event.target.nodeName !== "BUTTON") { return }
-		if (fillFormInfo.pdfType === "csForms") {
+		if (fillFormInfo.pdfType === "ChildSupportForms") {
 			csReferral(fillFormInfo);
 			csGoodCause(fillFormInfo, event.target.id);
 		} else if (fillFormInfo.pdfType === "BillingForm") {
 			ccapBillingForm(fillFormInfo);
 		}
 	})
-/*
-	function goFillForm(min) {
-		if (fillFormInfo.pdfType === "csForms") {
-			csReferral(fillFormInfo);
-			csGoodCause(fillFormInfo, min);
-		} else if (fillFormInfo.pdfType === "BillingForm") {
-			ccapBillingForm(fillFormInfo);
-		} else {
-		return;
-		};
+	function createNewEle(nodeName, attribObj={}, dataObj) {
+		let newEle = Object.assign(document.createElement(nodeName), attribObj);
+		if (dataObj !== undefined) {
+			for (const [dataName, dataValue] of Object.entries(dataObj)) { newEle.dataset[dataName] = dataValue }
+		}
+		return newEle
 	};
-*/
 </script>
 <style type="text/css">
 	body {
 		background-color: rgba(185 185 185 / .50);
 		font-family: system-ui;
 	}
-	#container {
+	.container {
 		padding: 2rem 0;
-		max-width: 800px;
+		max-width: 1000px;
 	}
-	p, #container, img, button {
+	#dataOutput {
+		padding-top: 4em;
+		border-top: 1px solid black;
+		> div {
+			display: flex;
+			width: 100%;
+			align-items: center;
+			gap: 1em;
+			& label {
+				width: 50%;
+				text-align: right;
+			}
+			& div {
+				width: 50%;
+				padding: .3em;
+				text-align: left;
+			}
+		}
+	}
+	div, .container, img, button {
 		margin: auto;
 		text-align: center;
-	}
-	p {
-		padding: .5rem 0;
-		max-width: 600px;
 	}
 	#buttonDiv, #billingForm > div {
 		display: flex;

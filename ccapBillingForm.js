@@ -35,7 +35,7 @@
 		//Date fields
 	const serviceStartDate = form.getTextField('service_date.start')
 	const serviceEndDate = form.getTextField('service_date.end')
-	const billingStartDate = form.getTextField('billilng_date.start')//sic
+	const billingStartDate = form.getTextField('billilng_date.start') //sic
 	const billingEndDate = form.getTextField('billing_date.end')
 	const attendanceStartDate = form.getTextField('attendance_date.start')
 	const attendanceEndDate = form.getTextField('attendance_date.end')
@@ -59,10 +59,10 @@
 	providerName.setText(formInfo.billingName)
 	providerAddress.setText(formInfo.billingAddress)
 	providerCityStateZip.setText(formInfo.billingCSZ)
-	countyName.setText(formInfo.providerName)//actually provider
-	countyAddress.setText('PID: ' + formInfo.providerIdVal)//actually provider
+	countyName.setText(formInfo.providerName) //actually provider
+	countyAddress.setText('PID: ' + formInfo.providerIdVal) //actually provider
 	//addressTwo.setText()
-	//countyCityStateZip.setText(formInfo.)//actually provider
+	//countyCityStateZip.setText(formInfo.) //actually provider
 	providerId.setText(formInfo.providerIdVal)
 	billingStartDate.setText(formInfo.startDate)
 	billingEndDate.setText(formInfo.endDate)
@@ -81,7 +81,7 @@
 	ageGroup1.setText(formInfo.children[0].ageCat1)
 	authorizedHours.setText(formInfo.children[0].authHours)
 
-		//Name the PDF
+		// Name the PDF
 	pdfEndName = [ "CCAP Billing Form", formInfo.caseNumber, formInfo.caseLastName, new Date(formInfo.startDate).toLocaleDateString('en-US', { year: "2-digit", month: "2-digit", day: "2-digit" }).replaceAll("/", "-"), String(formInfo.children[0].name).split(" ")[0] ].join(" - ")
 		// Flatten PDF
 	//form.flatten();//Breaks the PDF, unable to open
@@ -90,13 +90,14 @@
 
 		// Trigger the browser to download the PDF document
 	download(pdfBytes, pdfEndName, "application/pdf");
-
-	nextChild(formInfo);
+	
+	if (formInfo.children.length === 1) { return };
+	formInfo.children.forEach((childInfo, childEnum) => {
+		if (childEnum === 0) { return }
+		additionalChild(formInfo, childInfo)
+	});
 };
-async function nextChild(formInfo) {
-	for (let child in formInfo.children) {
-		if (child === "0") { continue }
-    	// Fetch the PDF with form fields
+async function additionalChild(formInfo, childInfo) {
 	const formUrl = "./BillingFormPg2.pdf";
 	const formPdfBytes = await fetch(formUrl).then(res => res.arrayBuffer())
 		// Load a PDF with form fields
@@ -105,22 +106,22 @@ async function nextChild(formInfo) {
 	const form = pdfDoc.getForm()
 		// Variables and associated PDF field names
 		// Base info
-	const caseNumber = form.getTextField('case.number')//pg2
+	const caseNumber = form.getTextField('case.number') //pg2
 		//Authorization Info
-	const childName = form.getTextField('childs.name')//pg2
-	const familyCopay = form.getTextField('family.copay')//pg2
-	const providerId = form.getTextField('provider.id')//pg2
-	const childProviderName = form.getTextField('child_provider_name')//pg2
-	const ageGroup0 = form.getTextField('age.group.0')//pg2
-	const ageGroup1 = form.getTextField('age.group.1')//pg2
-	const authorizedHours = form.getTextField('Authorized.hours.0')//pg2
+	const childName = form.getTextField('childs.name') //pg2
+	const familyCopay = form.getTextField('family.copay') //pg2
+	const providerId = form.getTextField('provider.id') //pg2
+	const childProviderName = form.getTextField('child_provider_name') //pg2
+	const ageGroup0 = form.getTextField('age.group.0') //pg2
+	const ageGroup1 = form.getTextField('age.group.1') //pg2
+	const authorizedHours = form.getTextField('Authorized.hours.0') //pg2
 		//Date fields
-	const serviceStartDate = form.getTextField('service_date.start')//pg2
-	const serviceEndDate = form.getTextField('service_date.end')//pg2
-	const attendanceStartDate = form.getTextField('attendance_date.start')//pg2
-	const attendanceEndDate = form.getTextField('attendance_date.end')//pg2
-	const attendance0 = form.getTextField('attendance.date.0')//pg2
-	const attendance7 = form.getTextField('attendance.date.7')//pg2
+	const serviceStartDate = form.getTextField('service_date.start') //pg2
+	const serviceEndDate = form.getTextField('service_date.end') //pg2
+	const attendanceStartDate = form.getTextField('attendance_date.start') //pg2
+	const attendanceEndDate = form.getTextField('attendance_date.end') //pg2
+	const attendance0 = form.getTextField('attendance.date.0') //pg2
+	const attendance7 = form.getTextField('attendance.date.7') //pg2
 
 		// PDF field filling - To variable and from variable
 	caseNumber.setText(formInfo.caseNumber)
@@ -133,19 +134,13 @@ async function nextChild(formInfo) {
 	attendanceEndDate.setText(formInfo.endDate)
 	attendance0.setText(formInfo.startDate);
 	attendance7.setText(formInfo.attendance7);
-	childName.setText(formInfo.children[child].name)
-	ageGroup0.setText(formInfo.children[child].ageCat0)
-	ageGroup1.setText(formInfo.children[child].ageCat1)
-	authorizedHours.setText(formInfo.children[child].authHours)
+	childName.setText(childInfo.name)
+	ageGroup0.setText(childInfo.ageCat0)
+	ageGroup1.setText(childInfo.ageCat1)
+	authorizedHours.setText(childInfo.authHours)
 
-		//Name the PDF
-	pdfEndName = [ "CCAP Billing Form", formInfo.caseNumber, formInfo.caseLastName, new Date(formInfo.startDate).toLocaleDateString('en-US', { year: "2-digit", month: "2-digit", day: "2-digit" }).replaceAll("/", "-"), String(formInfo.children[child].name).split(" ")[0] ].join(" - ")
-		// Flatten PDF
-	//form.flatten();
-		// Serialize the PDFDocument to bytes (a Uint8Array)
-	const pdfBytes = await pdfDoc.save()
-
-		// Trigger the browser to download the PDF document
-	download(pdfBytes, pdfEndName, "application/pdf");
-	};
+	pdfEndName = [ "CCAP Billing Form", formInfo.caseNumber, formInfo.caseLastName, new Date(formInfo.startDate).toLocaleDateString('en-US', { year: "2-digit", month: "2-digit", day: "2-digit" }).replaceAll("/", "-"), String(childInfo.name).split(" ")[0] ].join(" - ")
+		// Flatten PDF //form.flatten();
+	const pdfBytes = await pdfDoc.save() // Serialize the PDFDocument to bytes (a Uint8Array)
+	download(pdfBytes, pdfEndName, "application/pdf"); // Trigger the download
 };

@@ -14,11 +14,11 @@ async function csGoodCause(formInfo, min) {
 		// Info fields data
     caseNumber.setText(formInfo.caseNumber);
 	cpName.setText([ formInfo.cpInfo.last, formInfo.cpInfo.first ].join(", "));
-	let ncpNameLastFirst = Object.hasOwn(formInfo, 'ncpInfo') ? [ formInfo.ncpInfo?.last, formInfo.ncpInfo?.first ].join(", ") : ''
+	let ncpNameLastFirst = formInfo.ncpInfo?.last ? [ formInfo.ncpInfo?.last, formInfo.ncpInfo?.first ].join(", ") : ""
 	ncpName.setText(ncpNameLastFirst);
 	
 	   //Name the PDF
-	const pdfEndName = [ "Client Statement of Good Cause", formInfo.caseNumber, formInfo.cpInfo.last, (formInfo.ncpInfo?.last + " " ?? "") + "(optional)" ].join(" - ") + ".pdf"
+	const pdfEndName = [ "Client Statement of Good Cause", formInfo.caseNumber, formInfo.cpInfo.last, (formInfo.ncpInfo?.last ? formInfo.ncpInfo.last + " " : "") + "(optional)" ].join(" - ") + ".pdf"
 
 		// Serialize the PDFDocument to bytes (a Uint8Array)
 	const pdfBytes = await pdfDoc.save()
