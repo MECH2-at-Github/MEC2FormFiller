@@ -4,8 +4,6 @@
 	<!-- meta knowledge: index.html -->
     <script type="text/javascript" src="./pdf-lib.min.js"></script>
     <script type="text/javascript" src="./download.js"></script>
-    <!-- <script type="text/javascript" src="https://unpkg.com/pdf-lib"></script> -->
-    <!-- <script type="text/javascript" src="https://unpkg.com/downloadjs@1.4.7"></script> -->
 	<script type="text/javascript" src="./csReferral.js"></script>
 	<script type="text/javascript" src="./csGoodCause.js"></script>
 	<script type="text/javascript" src="./ccapBillingForm.js"></script>
@@ -54,6 +52,7 @@
 			let newStartDate = getNewStartDate(event.target.id)
 			function getNewStartDate(changeDirection) {
 				let startDate = Date.parse(document.getElementById('periodStart').textContent)
+				let startDate = Date.parse(document.getElementById('periodStart').textContent)
 				switch (changeDirection) {
 					case "incrementPeriod":
 					return new Date(startDate + weekInMs).toLocaleDateString(undefined, dateFormat)
@@ -74,13 +73,22 @@
 		let dataOutput = document.getElementById('dataOutput')
 		for (let data in fillFormInfo) {
 			let info = fillFormInfo[data]
-			if (typeof info === "object") { info = objToString(info) }
 			dataOutput.appendChild( createNewEle('div') )
-			.append( createNewEle('label', { textContent: data + ":" }), createNewEle('div', { textContent: info.toString() }) )
+			.append( createNewEle('label', { textContent: data + ":" }), strOrObjToHtmlDiv(info) )
 		}
 	})();
-	<!-- function objectToString(obj) { return Object.entries(obj).map(e => e.join(": ")).join(", ") } -->
-	function objToString(obj) { return JSON.stringify(obj).replace(/["{}\[\]]/g, '').replace(/(:|,)(\S)/g, '$1 $2') }
+	function strOrObjToHtmlDiv(info) {
+		if (typeof info === "string") { return createNewEle('div', { textContent: info.toString() }) }
+		if (typeof info === "object") {
+			let divContainer = createNewEle('div', { classList: "span-container" })
+			Object.entries(info).forEach( ([label, text] = []) => { divContainer.append(createNewEle('span', { textContent: label + ":", classList: "span-label" }), createNewEle('span', { classList: "span-text", textContent: text }) ) })
+			return divContainer
+		}
+	}
+	function utcDate(mdy) {
+		let [ utcM, utcD, utcY ] = mdy.split("/")
+		utcY = utcY.length === 2 ? utcY.padStart(4, "20") : utcY
+	}
 	
 	document.getElementById('fillPDFbutton').focus()
 
@@ -167,6 +175,13 @@
 	.fillButton:focus {
 		outline: 2px solid;
 		outline-color: lightseagreen !important;
+	}
+	.span-text {
+		margin-right: 6px;
+	}
+	.span-label {
+		font-style: italic;
+		margin-right: 3px;
 	}
 	#billingForm > div {
 		display: flex;
