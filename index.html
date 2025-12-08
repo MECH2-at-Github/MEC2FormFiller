@@ -1,41 +1,94 @@
 <html>
-	<head>
-		<meta charset="utf-8" />
-		<!-- meta knowledge: index.html -->
-		<link rel="stylesheet" type="text/css" media="screen" href="./index.css">
-		<script type="text/javascript" src="./jsFunctionLib.js"></script>
-		<script type="text/javascript" src="./index.js"></script>
-		<script type="text/javascript" src="./pdf-lib.min.js"></script>
-		<script type="text/javascript" src="./download.js"></script>
-		<script type="text/javascript" src="./csReferral.js"></script>
-		<script type="text/javascript" src="./csGoodCause.js"></script>
-		<script type="text/javascript" src="./ccapBillingForm.js"></script>
-		<title>MEC2 AutoForm</title>
-	</head>
+<head>
+    <meta charset="utf-8" />
+	<!-- meta knowledge: index.html -->
+	<link rel="stylesheet" type="text/css" media="screen" href="./index.css">
+    <script type="text/javascript" src="./jsFunctionLib.js"></script>
+    <script type="text/javascript" src="./pdf-lib.min.js"></script>
+    <script type="text/javascript" src="./download.js"></script>
+	<script type="text/javascript" src="./csReferral.js"></script>
+	<script type="text/javascript" src="./csGoodCause.js"></script>
+	<script type="text/javascript" src="./ccapBillingForm.js"></script>
+	<title>MEC2 AutoForm</title>
+</head>
 
-	<body>
-		<div class="container">
-			<div>Click the button to fill PDF form fields and download the resulting file to your computer. </div>
-			<div id="buttonDiv">
-				<button class="fillButton" id="fillPDFbutton">Fill PDF</button>
-				<button class="fillButton" style="display: none" id="fillPDFbuttonMin">Fill PDF (2 pg Good Cause)</button>
-			</div>
-			<div style="display: none; margin-bottom: 20px;" id="billingForm">
-				<div id="periodDiv">
-					<button class="directionButton" id="decrementPeriod">«</button>
-					<span>Period Start:</span>
-					<span id="periodStart" style="width: 9.5ch;"></span>
-					<button class="directionButton" id="incrementPeriod">»</button>
-				</div>
-				<div id="copayDiv" style="line-height: 25px;">
-					<span>Copay: $</span>
-					<input id="copayAmount" type="number" style="width: 6ch; align-self: end; -webkit-appearance: none; -moz-appearance: textfield;"></input>
-				</div>
-			</div>
-			<div>Default download location is "This PC → Downloads"</div>
+<body>
+	<div class="container">
+		<div>Click the button to fill PDF form fields and download the resulting file to your computer. </div>
+		<div id="buttonDiv">
+			<button class="fillButton" id="fillPDFbutton">Fill PDF</button>
+			<button class="fillButton" style="display: none" id="fillPDFbuttonMin">Fill PDF (2 pg Good Cause)</button>
 		</div>
-		<div class="container">
-			<div id="dataOutput"></div>
+		<div style="display: none; margin-bottom: 20px;" id="billingForm">
+			<div id="periodDiv">
+				<button class="directionButton" id="decrementPeriod">«</button>
+				<span>Period Start:</span>
+				<span id="periodStart" style="width: 9.5ch;"></span>
+				<button class="directionButton" id="incrementPeriod">»</button>
+			</div>
+			<div id="copayDiv" style="line-height: 25px;">
+				<span>Copay: $</span>
+				<input id="copayAmount" type="number" style="width: 6ch; align-self: end; -webkit-appearance: none; -moz-appearance: textfield;"></input>
+			</div>
 		</div>
-	</body>
+		<div>Default download location is "This PC → Downloads"</div>
+	</div>
+	<div class="container">
+		<div id="dataOutput"></div>
+	</div>
+</body>
+
+<script type="text/javascript">
+	const { PDFDocument } = PDFLib;
+	const fillFormInfo = JSON.parse(new URLSearchParams(decodeURI(window.location.search)).get('parm1'));
+	if (fillFormInfo.pdfType === "ChildSupportForms") {
+		document.getElementById('fillPDFbuttonMin').style.display = "block"
+	} else if (fillFormInfo.pdfType === "BillingForm") {
+		const weekInMs = 86400000 * 14
+		const dateFormat = '{ year: "2-digit", month: "numeric", day: "numeric" }'
+		document.getElementById('periodStart').textContent = fillFormInfo.startDate
+		document.getElementById('copayAmount').value = fillFormInfo.copayAmount
+		document.getElementById('billingForm').style.display = "block"
+		document.getElementById('periodDiv').addEventListener('click', function(event) {
+			if (event.target.nodeName !== "BUTTON") { return }
+			let newStartDate = getNewStartDate(event.target.id)
+			function getNewStartDate(changeDirection) {
+				let startDate = Date.parse(document.getElementById('periodStart').textContent)
+				switch (changeDirection) {
+					case "incrementPeriod":
+					return new Date(startDate + weekInMs).toLocaleDateString(undefined, dateFormat)
+					break
+					case "decrementPeriod":
+					return new Date(startDate - weekInMs).toLocaleDateString(undefined, dateFormat)
+					break
+				}
+			}
+			document.getElementById('periodStart').textContent = newStartDate
+			fillFormInfo.startDate = newStartDate
+		})
+		document.getElementById('copayAmount').addEventListener('blur', function(event) {
+			fillFormInfo.copayAmount = event.target.value
+		})
+	};
+	(function outputDataOnPage() {
+		let dataOutput = document.getElementById('dataOutput')
+		for (let data in fillFormInfo) {
+			let info = fillFormInfo[data]
+			dataOutput.appendChild( createNewEle('div') )
+			.append( createNewEle('label', { textContent: data + ":" }), strOrObjToHtmlDiv(info) )
+		}
+	})();
+	document.getElementById('fillPDFbutton').focus()
+
+	document.getElementById('buttonDiv').addEventListener('click', function(event) {
+		if (event.target.nodeName !== "BUTTON") { return }
+		if (fillFormInfo.pdfType === "ChildSupportForms") {
+			csReferral(fillFormInfo);
+			csGoodCause(fillFormInfo, event.target.id);
+		} else if (fillFormInfo.pdfType === "BillingForm") {
+			ccapBillingForm(fillFormInfo);
+		}
+	})
+</script>
+
 </html>
